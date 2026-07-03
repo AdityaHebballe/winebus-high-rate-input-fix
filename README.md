@@ -70,6 +70,9 @@ See [UPSTREAM_EVIDENCE.md](UPSTREAM_EVIDENCE.md) for methodology, environment,
 measurements, and safety properties. Selected raw captures and analyzer output
 are retained under [`results/`](results/).
 
+The corresponding WineHQ patch is retained under [`patches/`](patches/) for
+review and exact reproduction.
+
 ## Origin
 
 The issue was first reproduced with a GameSir Nova 2 Lite (`3537:1098`) using
