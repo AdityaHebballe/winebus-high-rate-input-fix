@@ -1,0 +1,7 @@
+prefix-*/
+__pycache__/
+*.pyc
+uinput_producer
+regression_producer
+*.exe
+*.o

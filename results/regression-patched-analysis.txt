@@ -1,0 +1,24 @@
+slot mapping: {1: 0, 2: 1}
+PASS pad1 a=1 2.032 ms
+PASS pad1 a=0 1.946 ms
+PASS pad2 b=1 1.949 ms
+PASS pad2 b=0 0.750 ms
+PASS pad1 x=1 2.549 ms
+PASS pad1 x=0 2.151 ms
+PASS pad2 y=1 1.937 ms
+PASS pad2 y=0 1.556 ms
+PASS pad1 dpad_right=1 2.756 ms
+PASS pad1 dpad_right=0 2.027 ms
+PASS pad2 dpad_up=1 2.822 ms
+PASS pad2 dpad_up=0 1.190 ms
+PASS pad1 reconnect_a=1 1.766 ms
+PASS pad1 reconnect_a=0 1.588 ms
+PASS pad1 lt=255 1.777 ms
+PASS pad1 lt=0 1.254 ms
+PASS pad2 rt=255 1.433 ms
+PASS pad2 rt=0 1.634 ms
+PASS hot-unplug observed
+PASS XInput rumble accepted on two slots
+PASS Linux received force-feedback for both pads
+ordered edge latency: max=2.822 ms, checks=14
+ALL REGRESSION CHECKS PASSED

@@ -1,0 +1,6 @@
+trial 1: excluded (XInput probe was not ready at neutral edge)
+trial 2: XInput neutral delay 0.462 ms
+trial 3: XInput neutral delay 0.956 ms
+trial 4: XInput neutral delay 1.339 ms
+trial 5: XInput neutral delay 1.243 ms
+median=1.099 ms max=1.339 ms n=4
