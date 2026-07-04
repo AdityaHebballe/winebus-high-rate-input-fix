@@ -16,6 +16,13 @@ Stress coverage from 125 Hz through 8 kHz kept median neutral delivery between
 0.925 and 1.367 ms. A separate unmapped generic joystick, read through WinMM
 rather than XInput, delivered button edges and neutral in at most 1.698 ms.
 
+Original-versus-patched captures at common 125, 250, 500, and 1000 Hz rates
+showed no low-rate regression. The original backend remained near 2 ms through
+500 Hz on this host, then crossed its processing limit and reached 3457 ms at
+1000 Hz; the patch remained near 1 ms. These rates correspond to 8, 4, 2, and
+1 ms report intervals and are representative examples in
+[SCUF's polling-rate explanation](https://www.scufgaming.com/us/en/gaming/products/scuf-products/controller-polling-rate-explained/).
+
 The original implementation also delayed short discrete inputs progressively
 as its FIFO grew: X at 531 ms, Y at 941 ms, D-pad right at 1332 ms, D-pad up at
 1856 ms, left trigger at 2381 ms, and right trigger at 2908 ms.
@@ -82,6 +89,8 @@ review and exact reproduction.
 The issue was first reproduced with a GameSir Nova 2 Lite (`3537:1098`) using
 its 2.4 GHz receiver in Xbox mode. Linux evdev remained current while Proton
 games continued moving for three to four seconds after both sticks stopped.
+The final refactored build was subsequently used for a full day of gameplay
+with no delayed or stuck movement observed.
 
 ## License
 

@@ -60,30 +60,31 @@ static void pump_ff(struct pad *p)
 
 static void msleep(int ms){struct timespec t={.tv_sec=ms/1000,.tv_nsec=(ms%1000)*1000000L};while(nanosleep(&t,&t)<0&&errno==EINTR);}
 
-int main(void)
+int main(int argc, char **argv)
 {
+    int rate=argc>1?atoi(argv[1]):1000,samples=5*rate,period_us=1000000/rate;
     struct pad p1=create_pad(1),p2=create_pad(2); int n;
     puts("event,realtime_us,pad,value"); fflush(stdout); log_event("created",1,0);log_event("created",2,0);
     for(n=0;n<7000;n++){pump_ff(&p1);pump_ff(&p2);usleep(1000);}
     key(&p1,BTN_A,1,"a");msleep(80);key(&p1,BTN_A,0,"a");
     key(&p2,BTN_B,1,"b");msleep(80);key(&p2,BTN_B,0,"b");
-    for(n=0;n<5000;n++)
+    for(n=0;n<samples;n++)
     {
         double q=n*(2*M_PI/137.0); axis(&p1,28000*sin(q),28000*cos(q),25000*sin(q*1.3),25000*cos(q*1.3));
         axis(&p2,22000*cos(q*.9),22000*sin(q*.9),20000*cos(q*1.1),20000*sin(q*1.1));
-        if(n==400) key(&p1,BTN_X,1,"x");
-        if(n==440) key(&p1,BTN_X,0,"x");
-        if(n==700) key(&p2,BTN_Y,1,"y");
-        if(n==740) key(&p2,BTN_Y,0,"y");
-        if(n==1000){emit(&p1,EV_ABS,ABS_HAT0X,1);sync_pad(&p1);log_event("dpad_right",1,1);}
-        if(n==1040){emit(&p1,EV_ABS,ABS_HAT0X,0);sync_pad(&p1);log_event("dpad_right",1,0);}
-        if(n==1400){emit(&p2,EV_ABS,ABS_HAT0Y,-1);sync_pad(&p2);log_event("dpad_up",2,1);}
-        if(n==1440){emit(&p2,EV_ABS,ABS_HAT0Y,0);sync_pad(&p2);log_event("dpad_up",2,0);}
-        if(n==1800){emit(&p1,EV_ABS,ABS_Z,255);sync_pad(&p1);log_event("lt",1,255);}
-        if(n==1900){emit(&p1,EV_ABS,ABS_Z,0);sync_pad(&p1);log_event("lt",1,0);}
-        if(n==2200){emit(&p2,EV_ABS,ABS_RZ,255);sync_pad(&p2);log_event("rt",2,255);}
-        if(n==2300){emit(&p2,EV_ABS,ABS_RZ,0);sync_pad(&p2);log_event("rt",2,0);}
-        pump_ff(&p1);pump_ff(&p2);usleep(1000);
+        if(n==400*rate/1000) key(&p1,BTN_X,1,"x");
+        if(n==440*rate/1000) key(&p1,BTN_X,0,"x");
+        if(n==700*rate/1000) key(&p2,BTN_Y,1,"y");
+        if(n==740*rate/1000) key(&p2,BTN_Y,0,"y");
+        if(n==1000*rate/1000){emit(&p1,EV_ABS,ABS_HAT0X,1);sync_pad(&p1);log_event("dpad_right",1,1);}
+        if(n==1040*rate/1000){emit(&p1,EV_ABS,ABS_HAT0X,0);sync_pad(&p1);log_event("dpad_right",1,0);}
+        if(n==1400*rate/1000){emit(&p2,EV_ABS,ABS_HAT0Y,-1);sync_pad(&p2);log_event("dpad_up",2,1);}
+        if(n==1440*rate/1000){emit(&p2,EV_ABS,ABS_HAT0Y,0);sync_pad(&p2);log_event("dpad_up",2,0);}
+        if(n==1800*rate/1000){emit(&p1,EV_ABS,ABS_Z,255);sync_pad(&p1);log_event("lt",1,255);}
+        if(n==1900*rate/1000){emit(&p1,EV_ABS,ABS_Z,0);sync_pad(&p1);log_event("lt",1,0);}
+        if(n==2200*rate/1000){emit(&p2,EV_ABS,ABS_RZ,255);sync_pad(&p2);log_event("rt",2,255);}
+        if(n==2300*rate/1000){emit(&p2,EV_ABS,ABS_RZ,0);sync_pad(&p2);log_event("rt",2,0);}
+        pump_ff(&p1);pump_ff(&p2);usleep(period_us);
     }
     axis(&p1,0,0,0,0);axis(&p2,0,0,0,0);log_event("neutral",1,0);log_event("neutral",2,0);
     for(n=0;n<2000;n++){pump_ff(&p1);pump_ff(&p2);usleep(1000);}

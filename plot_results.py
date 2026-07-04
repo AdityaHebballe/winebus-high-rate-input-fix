@@ -37,25 +37,59 @@ patched_text = (results / "regression-patched-analysis.txt").read_text()
 edge_delays = [float(v) for v in re.findall(r"PASS .*? ([0-9.]+) ms$", patched_text, re.MULTILINE)]
 patched_max = max(edge_delays)
 
+def summary(path):
+    text = path.read_text()
+    match = re.search(r"median=([0-9.]+) ms max=([0-9.]+) ms", text)
+    return float(match.group(1)), float(match.group(2))
+
 plt.style.use("seaborn-v0_8-whitegrid")
-fig, axes = plt.subplots(1, 3, figsize=(16, 4.8))
+fig, axes = plt.subplots(2, 2, figsize=(13, 9))
 
-axes[0].boxplot([baseline, patched], tick_labels=["Original", "Patched"], widths=.45,
-                showmeans=True)
-axes[0].scatter([1] * len(baseline), baseline, color="#c43b3b", zorder=3)
-axes[0].scatter([2] * len(patched), patched, color="#25855a", zorder=3)
-axes[0].set_yscale("log")
-axes[0].set_ylabel("Raw neutral → XInput neutral (ms, log scale)")
-axes[0].set_title("1 kHz four-axis queue latency")
+axes[0, 0].boxplot([baseline, patched], tick_labels=["Original", "Patched"], widths=.45,
+                   showmeans=True)
+axes[0, 0].scatter([1] * len(baseline), baseline, color="#c43b3b", zorder=3)
+axes[0, 0].scatter([2] * len(patched), patched, color="#25855a", zorder=3)
+axes[0, 0].set_yscale("log")
+axes[0, 0].set_ylabel("Raw neutral → XInput neutral (ms, log scale)")
+axes[0, 0].set_title("1 kHz four-axis queue latency")
 
-axes[1].plot(labels, late, marker="o", linewidth=2.2, color="#c43b3b",
-             label="Original press arrival")
-axes[1].axhline(patched_max, color="#25855a", linewidth=2,
-                label=f"Patched maximum ({patched_max:.3f} ms)")
-axes[1].set_ylabel("Input delivery latency (ms)")
-axes[1].set_title("Queue growth during two-controller flood")
-axes[1].tick_params(axis="x", rotation=30)
-axes[1].legend()
+common_rates = [125, 250, 500, 1000]
+original_common = [summary(results / f"stress-baseline-{rate}hz-analysis.txt")[0]
+                   for rate in common_rates[:-1]] + [summary(results / "baseline-analysis.txt")[0]]
+patched_common = [summary(results / f"stress-{rate}hz-analysis.txt")[0]
+                  for rate in common_rates]
+axes[0, 1].plot(common_rates, original_common, marker="o", linewidth=2.2,
+                color="#c43b3b", label="Original")
+axes[0, 1].plot(common_rates, patched_common, marker="o", linewidth=2.2,
+                color="#25855a", label="Patched")
+axes[0, 1].set_yscale("log")
+axes[0, 1].set_xticks(common_rates, [str(rate) for rate in common_rates])
+axes[0, 1].set_ylabel("Median neutral latency (ms, log scale)")
+axes[0, 1].set_xlabel("Controller report rate (Hz)")
+axes[0, 1].set_title("Common report-rate comparison")
+axes[0, 1].legend()
+
+def baseline_edges(rate):
+    text = (results / f"regression-baseline-{rate}hz-analysis.txt").read_text()
+    values = {}
+    for name in ("x", "y", "dpad_right", "dpad_up"):
+        match = re.search(rf"PASS pad\d+ {name}=1 ([0-9.]+) ms", text)
+        values[name] = float(match.group(1))
+    for name in ("lt", "rt"):
+        match = re.search(rf"PASS pad\d+ {name}=255 ([0-9.]+) ms", text)
+        values[name] = float(match.group(1))
+    return [values[name] for name in ("x", "y", "dpad_right", "dpad_up", "lt", "rt")]
+
+for rate, color in zip((125, 250, 500), ("#5378a6", "#8a6ba8", "#d28b35")):
+    axes[1, 0].plot(labels, baseline_edges(rate), marker="o", label=f"{rate} Hz", color=color)
+axes[1, 0].plot(labels, late, marker="o", linewidth=2.2, color="#c43b3b", label="1000 Hz")
+axes[1, 0].axhline(patched_max, color="#25855a", linewidth=2,
+                   label=f"Patched maximum ({patched_max:.3f} ms)")
+axes[1, 0].set_yscale("log")
+axes[1, 0].set_ylabel("Input delivery latency (ms, log scale)")
+axes[1, 0].set_title("Original FIFO growth by report rate")
+axes[1, 0].tick_params(axis="x", rotation=30)
+axes[1, 0].legend()
 
 rates = [125, 250, 500, 1000, 2000, 4000, 8000]
 medians, maxima = [], []
@@ -64,14 +98,14 @@ for rate in rates:
     match = re.search(r"median=([0-9.]+) ms max=([0-9.]+) ms", analysis)
     medians.append(float(match.group(1)))
     maxima.append(float(match.group(2)))
-axes[2].plot(rates, medians, marker="o", label="Median")
-axes[2].plot(rates, maxima, marker="o", label="Maximum")
-axes[2].set_xscale("log", base=2)
-axes[2].set_xticks(rates, [str(rate) for rate in rates], rotation=30)
-axes[2].set_ylabel("Neutral delivery latency (ms)")
-axes[2].set_xlabel("Virtual controller report rate (Hz)")
-axes[2].set_title("Bounded-drain stress test")
-axes[2].legend()
+axes[1, 1].plot(rates, medians, marker="o", label="Median")
+axes[1, 1].plot(rates, maxima, marker="o", label="Maximum")
+axes[1, 1].set_xscale("log", base=2)
+axes[1, 1].set_xticks(rates, [str(rate) for rate in rates], rotation=30)
+axes[1, 1].set_ylabel("Neutral delivery latency (ms)")
+axes[1, 1].set_xlabel("Virtual controller report rate (Hz)")
+axes[1, 1].set_title("Patched bounded-drain stress test")
+axes[1, 1].legend()
 
 fig.suptitle("Wine SDL winebus high-report-rate input backlog", fontsize=14)
 fig.tight_layout()

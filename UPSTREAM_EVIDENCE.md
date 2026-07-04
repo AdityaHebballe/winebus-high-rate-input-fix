@@ -64,6 +64,21 @@ The bounded SDL drain was tested from 125 Hz through 8 kHz overload:
 | 4 kHz | 1.367 ms | 1.839 ms |
 | 8 kHz | 1.281 ms | 1.767 ms |
 
+Common-rate original-versus-patched captures show the throughput threshold:
+
+| Rate | Original median | Patched median |
+| ---: | ---: | ---: |
+| 125 Hz | 2.296 ms | 0.953 ms |
+| 250 Hz | 1.968 ms | 1.292 ms |
+| 500 Hz | 2.249 ms | 1.022 ms |
+| 1 kHz | 3457.161 ms | 0.925 ms |
+
+At 125–500 Hz the original backend kept up on this host. At 1 kHz it crossed
+its processing capacity and accumulated seconds of stale state, while the
+patched backend remained current. Separate discrete-input captures show the
+same threshold: 125–500 Hz stayed around 2–4 ms, while the six events injected
+during the 1 kHz flood arrived progressively 531–2908 ms late.
+
 ### Generic joystick path
 
 An unmapped virtual joystick (`1234:abcd`) was read through WinMM to exercise
@@ -96,5 +111,12 @@ On WineHQ master `685c5b6f`, complete SDL-enabled `winebus.so` builds and links
 passed for both x86-64 and i386 with GCC 16 and Clang 22. The 32-bit results
 were verified as ELF32 Intel 80386 shared objects. Wine's normal warning set
 was enabled for every build, and `git diff --check` passed.
+
+## Physical controller validation
+
+The final refactored Proton-CachyOS build was used with the GameSir Nova 2 Lite
+2.4 GHz receiver in Xbox mode for a full day of gameplay. Repeated simultaneous
+dual-stick movement, abrupt stops, buttons, D-pad, and triggers produced no
+delayed or stuck input.
 
 Raw CSV output and SHA-256 hashes are retained in `results/`.

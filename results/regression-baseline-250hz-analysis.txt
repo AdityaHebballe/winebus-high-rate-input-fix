@@ -1,0 +1,24 @@
+slot mapping: {1: 0, 2: 1}
+PASS pad1 a=1 1.407 ms
+PASS pad1 a=0 1.860 ms
+PASS pad2 b=1 0.764 ms
+PASS pad2 b=0 1.076 ms
+PASS pad1 x=1 2.530 ms
+PASS pad1 x=0 2.850 ms
+PASS pad2 y=1 2.931 ms
+PASS pad2 y=0 3.112 ms
+PASS pad1 dpad_right=1 2.525 ms
+PASS pad1 dpad_right=0 2.858 ms
+PASS pad2 dpad_up=1 3.060 ms
+PASS pad2 dpad_up=0 3.232 ms
+PASS pad1 reconnect_a=0 24.608 ms
+PASS pad1 lt=255 3.299 ms
+PASS pad1 lt=0 3.719 ms
+PASS pad2 rt=255 3.641 ms
+PASS pad2 rt=0 3.464 ms
+PASS hot-unplug observed
+ordered edge latency: max=24.608 ms, checks=13
+FAIL:
+- pad1 reconnect_a=1 missing
+- XInput rumble was not accepted on two slots
+- force-feedback reached pads [2], expected [1, 2]

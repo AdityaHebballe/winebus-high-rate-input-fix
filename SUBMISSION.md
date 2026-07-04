@@ -36,6 +36,12 @@ Bounded-drain stress from 125 Hz through 8 kHz kept median neutral latency
 between 0.925 and 1.367 ms. A separate unmapped generic SDL joystick tested
 through WinMM delivered its button edges and neutral within 1.698 ms.
 
+Original-versus-patched captures at 125, 250, 500, and 1000 Hz showed no
+low-rate regression. The original backend remained near 2 ms through 500 Hz
+on this host, then reached 3457 ms at 1000 Hz; the patch remained near 1 ms.
+The final build was also used with the physical GameSir controller for a full
+day of gameplay without delayed or stuck input.
+
 Full source, methodology, plots, analyzer output, and raw captures:
 
 https://github.com/AdityaHebballe/winebus-high-rate-input-fix
