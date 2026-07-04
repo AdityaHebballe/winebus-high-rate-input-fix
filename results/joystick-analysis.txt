@@ -1,0 +1,5 @@
+generic joystick WinMM id=0
+PASS button_down 1.698 ms
+PASS button_up 1.214 ms
+PASS generic joystick neutral 1.219 ms
+ALL GENERIC JOYSTICK CHECKS PASSED

@@ -12,6 +12,10 @@ XInput a median **3457.161 ms** late. Coalescing pending absolute-axis states
 reduced the median to **1.099 ms**. The final two-controller regression run
 delivered every ordered input edge within **2.822 ms**.
 
+Stress coverage from 125 Hz through 8 kHz kept median neutral delivery between
+0.925 and 1.367 ms. A separate unmapped generic joystick, read through WinMM
+rather than XInput, delivered button edges and neutral in at most 1.698 ms.
+
 The original implementation also delayed short discrete inputs progressively
 as its FIFO grew: X at 531 ms, Y at 941 ms, D-pad right at 1332 ms, D-pad up at
 1856 ms, left trigger at 2381 ms, and right trigger at 2908 ms.

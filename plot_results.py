@@ -38,7 +38,7 @@ edge_delays = [float(v) for v in re.findall(r"PASS .*? ([0-9.]+) ms$", patched_t
 patched_max = max(edge_delays)
 
 plt.style.use("seaborn-v0_8-whitegrid")
-fig, axes = plt.subplots(1, 2, figsize=(12, 4.8))
+fig, axes = plt.subplots(1, 3, figsize=(16, 4.8))
 
 axes[0].boxplot([baseline, patched], tick_labels=["Original", "Patched"], widths=.45,
                 showmeans=True)
@@ -56,6 +56,22 @@ axes[1].set_ylabel("Input delivery latency (ms)")
 axes[1].set_title("Queue growth during two-controller flood")
 axes[1].tick_params(axis="x", rotation=30)
 axes[1].legend()
+
+rates = [125, 250, 500, 1000, 2000, 4000, 8000]
+medians, maxima = [], []
+for rate in rates:
+    analysis = (results / f"stress-{rate}hz-analysis.txt").read_text()
+    match = re.search(r"median=([0-9.]+) ms max=([0-9.]+) ms", analysis)
+    medians.append(float(match.group(1)))
+    maxima.append(float(match.group(2)))
+axes[2].plot(rates, medians, marker="o", label="Median")
+axes[2].plot(rates, maxima, marker="o", label="Maximum")
+axes[2].set_xscale("log", base=2)
+axes[2].set_xticks(rates, [str(rate) for rate in rates], rotation=30)
+axes[2].set_ylabel("Neutral delivery latency (ms)")
+axes[2].set_xlabel("Virtual controller report rate (Hz)")
+axes[2].set_title("Bounded-drain stress test")
+axes[2].legend()
 
 fig.suptitle("Wine SDL winebus high-report-rate input backlog", fontsize=14)
 fig.tight_layout()

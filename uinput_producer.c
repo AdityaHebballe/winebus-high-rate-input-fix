@@ -61,6 +61,10 @@ int main(int argc, char **argv)
     const int trials = argc > 1 ? atoi(argv[1]) : 5;
     const int active_ms = argc > 2 ? atoi(argv[2]) : 2000;
     const int idle_ms = argc > 3 ? atoi(argv[3]) : 4000;
+    const int rate_hz = argc > 4 ? atoi(argv[4]) : 1000;
+    const int generic = argc > 5 && !strcmp(argv[5], "generic");
+    const int period_us = 1000000 / rate_hz;
+    const int active_samples = active_ms * rate_hz / 1000;
     struct uinput_setup setup = {0};
     struct uinput_abs_setup abs = {0};
     const int axes[] = {ABS_X, ABS_Y, ABS_RX, ABS_RY};
@@ -87,11 +91,12 @@ int main(int argc, char **argv)
         if (ioctl(fd, UI_ABS_SETUP, &abs) < 0) perror("UI_ABS_SETUP");
     }
     setup.id.bustype = BUS_USB;
-    setup.id.vendor = 0x045e;
-    setup.id.product = 0x028e;
+    setup.id.vendor = generic ? 0x1234 : 0x045e;
+    setup.id.product = generic ? 0xabcd : 0x028e;
     setup.id.version = 0x0114;
     /* Match SDL's built-in Xbox 360 controller mapping. */
-    snprintf(setup.name, UINPUT_MAX_NAME_SIZE, "Xbox 360 Controller");
+    snprintf(setup.name, UINPUT_MAX_NAME_SIZE, "%s",
+             generic ? "Winebus Generic Joystick Evidence" : "Xbox 360 Controller");
     if (ioctl(fd, UI_DEV_SETUP, &setup) < 0 || ioctl(fd, UI_DEV_CREATE) < 0)
     {
         perror("create uinput device");
@@ -107,12 +112,22 @@ int main(int argc, char **argv)
     {
         printf("active,%lld,%d\n", (long long)realtime_us(), trial);
         fflush(stdout);
-        for (sample = 0; sample < active_ms; ++sample)
+        for (sample = 0; sample < active_samples; ++sample)
         {
             double p = sample * (2.0 * M_PI / 137.0);
             report_axes((int)(28000 * sin(p)), (int)(28000 * cos(p)),
                         (int)(25000 * sin(p * 1.37)), (int)(25000 * cos(p * 1.37)));
-            add_us(&next, 1000);
+            if (generic && sample == active_samples * 4 / 5)
+            {
+                emit(EV_KEY, BTN_A, 1); emit(EV_SYN, SYN_REPORT, 0);
+                printf("button_down,%lld,%d\n", (long long)realtime_us(), trial); fflush(stdout);
+            }
+            if (generic && sample == active_samples * 4 / 5 + rate_hz / 20)
+            {
+                emit(EV_KEY, BTN_A, 0); emit(EV_SYN, SYN_REPORT, 0);
+                printf("button_up,%lld,%d\n", (long long)realtime_us(), trial); fflush(stdout);
+            }
+            add_us(&next, period_us);
             sleep_until(next);
         }
         report_axes(0, 0, 0, 0);

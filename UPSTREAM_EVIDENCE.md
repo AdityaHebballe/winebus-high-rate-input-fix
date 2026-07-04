@@ -50,6 +50,26 @@ Patched results:
 - Hot-unplug and reconnect observed.
 - Rumble accepted by XInput and received by both Linux uinput devices.
 
+### Report-rate stress
+
+The bounded SDL drain was tested from 125 Hz through 8 kHz overload:
+
+| Rate | Median neutral delay | Maximum neutral delay |
+| ---: | ---: | ---: |
+| 125 Hz | 0.953 ms | 1.799 ms |
+| 250 Hz | 1.292 ms | 2.151 ms |
+| 500 Hz | 1.022 ms | 1.056 ms |
+| 1 kHz | 0.925 ms | 0.959 ms |
+| 2 kHz | 1.264 ms | 1.302 ms |
+| 4 kHz | 1.367 ms | 1.839 ms |
+| 8 kHz | 1.281 ms | 1.767 ms |
+
+### Generic joystick path
+
+An unmapped virtual joystick (`1234:abcd`) was read through WinMM to exercise
+`SDL_JOYAXISMOTION` independently of SDL's GameController/XInput path. Button
+press, button release, and neutral arrived in 1.698, 1.214, and 1.219 ms.
+
 With the original backend, the injected press transitions arrived
 progressively later as the queue grew:
 
@@ -72,9 +92,9 @@ source from monopolizing the winebus thread.
 
 ## Build validation
 
-On WineHQ master `1bb0da91a5e737323656403199aa3a3b2a9ffd9c`, complete
-SDL-enabled `winebus.so` builds and links passed for both x86-64 and i386. The
-32-bit result was verified as an ELF32 Intel 80386 shared object. Wine's normal
-warning set was enabled for both builds, and `git diff --check` passed.
+On WineHQ master `685c5b6f`, complete SDL-enabled `winebus.so` builds and links
+passed for both x86-64 and i386 with GCC 16 and Clang 22. The 32-bit results
+were verified as ELF32 Intel 80386 shared objects. Wine's normal warning set
+was enabled for every build, and `git diff --check` passed.
 
 Raw CSV output and SHA-256 hashes are retained in `results/`.
