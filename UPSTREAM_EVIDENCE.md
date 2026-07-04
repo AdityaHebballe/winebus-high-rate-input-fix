@@ -70,4 +70,11 @@ and force-feedback state reports remain ordering barriers. SDL draining is
 limited to 256 queued events per pass to prevent a continuously producing
 source from monopolizing the winebus thread.
 
+## Build validation
+
+On WineHQ master `1bb0da91a5e737323656403199aa3a3b2a9ffd9c`, complete
+SDL-enabled `winebus.so` builds and links passed for both x86-64 and i386. The
+32-bit result was verified as an ELF32 Intel 80386 shared object. Wine's normal
+warning set was enabled for both builds, and `git diff --check` passed.
+
 Raw CSV output and SHA-256 hashes are retained in `results/`.

@@ -39,10 +39,12 @@ https://github.com/AdityaHebballe/winebus-high-rate-input-fix
 ## Build validation
 
 - WineHQ master at `1bb0da91a5e737323656403199aa3a3b2a9ffd9c`.
-- Native 64-bit `dlls/winebus.sys/winebus.so` build passed.
-- Changed `bus_sdl.c` and `unixlib.c` passed forced 32-bit compilation with
-  Wine's warnings promoted to errors.
+- Native 64-bit `dlls/winebus.sys/winebus.so` build and link passed.
+- Native 32-bit SDL-enabled `dlls/winebus.sys/winebus.so` build and link
+  passed. The result is an ELF32 Intel i386 shared object.
 - `git diff --check` passed.
 
-The host did not have a linkable 32-bit SDL library, so a complete 32-bit
-`winebus.so` link was not claimed.
+Build artifact SHA-256 values:
+
+- 64-bit: `f8432d292aece511accdc9f5a74f6bed8cd9dec0927210df4f7e054710a23535`
+- 32-bit: `a687005355f4df53a357c46b68fe23a0b072a8d9dfd8b9b0b8c5df600a290358`
